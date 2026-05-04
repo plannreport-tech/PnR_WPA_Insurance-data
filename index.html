@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PnR CRM">
+<meta name="theme-color" content="#1F3864">
+<link rel="manifest" href="manifest.json">
+<title>PnR CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-900:#0D1F3C;--navy-800:#1F3864;--navy-700:#2A4A7F;--navy-600:#3558A0;
+  --blue-500:#4472C4;--blue-400:#618ED0;--blue-100:#D8E6F4;--blue-50:#EEF4FB;
+  --amber-600:#C4800A;--amber-500:#F4A20A;--amber-400:#F6B535;--amber-100:#FDF0CE;
+  --success:#22C55E;--success-bg:#DCFCE7;--success-dark:#15803D;
+  --error:#EF4444;--error-bg:#FEE2E2;--error-dark:#B91C1C;
+  --gray-900:#111827;--gray-800:#1F2937;--gray-700:#374151;--gray-600:#4B5563;
+  --gray-500:#6B7280;--gray-400:#9CA3AF;--gray-300:#D1D5DB;
+  --gray-200:#E5E7EB;--gray-100:#F3F4F6;--gray-50:#F9FAFB;
+  --surface:#F0F4FA;--white:#FFFFFF;
+  --shadow-sm:0 1px 4px rgba(31,56,100,0.08);
+  --shadow-md:0 4px 16px rgba(31,56,100,0.12);
+  --shadow-lg:0 8px 32px rgba(31,56,100,0.2);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
+  --nav-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Sarabun',sans-serif;background:var(--surface);color:var(--gray-900);display:flex;flex-direction:column}
+button{font-family:inherit;border:none;cursor:pointer;background:none}
+input,select,textarea{font-family:inherit;outline:none}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;height:100%;overflow:hidden;position:relative}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+
+/* ── TOP BAR ── */
+.top-bar{background:var(--navy-800);padding:env(safe-area-inset-top,0) 16px 0;flex-shrink:0;z-index:100}
+.top-bar-inner{height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo-wrap{display:flex;align-items:center;gap:9px}
+.logo-mark{width:34px;height:34px;background:var(--blue-500);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:12px;letter-spacing:-1px;position:relative}
+.logo-mark .dot{position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--amber-500);border-radius:50%;border:1.5px solid var(--blue-500)}
+.logo-text{color:white;font-size:18px;font-weight:800;letter-spacing:.3px}
+.logo-text span{color:var(--blue-400)}
+.logo-sub{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase}
+.hdr-right{display:flex;gap:6px;align-items:center}
+.icon-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:17px;position:relative;cursor:pointer}
+.icon-btn .bdot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--amber-500);border-radius:50%;border:1.5px solid var(--navy-800);display:none}
+
+/* ── PAGE HEADER ── */
+.page-hdr{padding:10px 16px;background:var(--navy-800);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:16px;font-weight:700;color:white}
+.page-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.page-btn{background:rgba(255,255,255,.15);color:white;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600}
+
+/* ── SEARCH ── */
+.search-wrap{padding:0 16px 12px;background:var(--navy-800);flex-shrink:0}
+.search-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:var(--r-md);padding:9px 14px}
+.search-box input{background:transparent;border:none;color:white;font-size:14px;flex:1}
+.search-box input::placeholder{color:rgba(255,255,255,.4)}
+
+/* ── FILTER CHIPS ── */
+.filter-row{display:flex;gap:7px;padding:10px 16px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;background:var(--white);border-bottom:1px solid var(--gray-100)}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{padding:6px 14px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap;border:1.5px solid transparent;cursor:pointer;transition:all .2s}
+.chip.on{background:var(--navy-800);color:white}
+.chip.off{background:var(--gray-50);color:var(--gray-600);border-color:var(--gray-200)}
+
+/* ── SCROLL AREA ── */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px calc(var(--nav-h) + env(safe-area-inset-bottom,0) + 16px);-webkit-overflow-scrolling:touch}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--gray-200);display:flex;padding:8px 0 calc(env(safe-area-inset-bottom,0) + 6px);z-index:200;box-shadow:0 -2px 16px rgba(31,56,100,.08)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;position:relative}
+.nav-ico{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s}
+.nav-btn.active .nav-ico{background:var(--navy-800)}
+.nav-lbl{font-size:9.5px;color:var(--gray-500);font-weight:500}
+.nav-btn.active .nav-lbl{color:var(--navy-800);font-weight:700}
+.nav-badge{position:absolute;top:0;right:calc(50% - 22px);background:var(--error);color:white;font-size:8px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid white}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cust-card{cursor:pointer;transition:transform .15s}
+.cust-card:active{transform:scale(.98)}
+.cust-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.avatar{width:46px;height:46px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white}
+.cust-meta{flex:1;min-width:0}
+.cust-name{font-size:14px;font-weight:700;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cust-phone{font-size:11.5px;color:var(--gray-500);margin-top:1px}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.tag{font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.tag-hot{background:#FEE2E2;color:var(--error)}
+.tag-warm{background:var(--amber-100);color:#92400E}
+.tag-cold{background:var(--blue-50);color:#1D4ED8}
+.tag-active{background:var(--success-bg);color:var(--success-dark)}
+.tag-inactive{background:var(--gray-100);color:var(--gray-600)}
+.tag-prospect{background:var(--blue-50);color:var(--navy-700)}
+.tag-high{background:#FCE7F3;color:#BE185D}
+.last-contact{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);padding:8px 0;border-top:1px solid var(--gray-100)}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ldot.red{background:var(--error)}.ldot.amber{background:var(--amber-500)}.ldot.green{background:var(--success)}
+.qa-row{display:flex;gap:6px;margin-top:8px}
+.qa-btn{flex:1;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;transition:opacity .15s}
+.qa-btn:active{opacity:.7}
+.qa-call{background:var(--success-bg);color:var(--success-dark)}
+.qa-note{background:var(--amber-100);color:#92400E}
+.qa-task{background:var(--blue-50);color:#1D4ED8}
+.qa-del{background:var(--error-bg);color:var(--error-dark)}
+
+/* ── STAT STRIP ── */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-tile{background:var(--white);border-radius:var(--r-md);padding:12px 8px 10px;text-align:center;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stat-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-red::before{background:var(--error)}.st-amber::before{background:var(--amber-500)}.st-blue::before{background:var(--blue-500)}.st-green::before{background:var(--success)}
+.stat-num{font-size:28px;font-weight:800;line-height:1}
+.st-red .stat-num{color:var(--error)}.st-amber .stat-num{color:var(--amber-500)}.st-blue .stat-num{color:var(--blue-500)}.st-green .stat-num{color:var(--success)}
+.stat-lbl{font-size:9.5px;color:var(--gray-500);margin-top:3px;line-height:1.3}
+
+/* ── SECTION HDR ── */
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}
+.sec-title{font-size:13px;font-weight:700;color:var(--navy-800);display:flex;align-items:center;gap:6px}
+.sec-dot{width:6px;height:6px;border-radius:50%;background:var(--amber-500)}
+.sec-link{font-size:11.5px;color:var(--blue-500);font-weight:600;cursor:pointer}
+
+/* ── ALERT ── */
+.alert-ban{background:linear-gradient(135deg,#FEF9C3,#FEF3C7);border-radius:var(--r-md);padding:11px 13px;display:flex;align-items:center;gap:10px;margin-bottom:10px;border-left:4px solid var(--amber-500)}
+.alert-body{font-size:12px;color:#78350F;line-height:1.5}
+.alert-body strong{color:#451A03}
+
+/* ── TASK ROW ── */
+.task-row{background:var(--white);border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .15s}
+.task-row:active{transform:scale(.98)}
+.task-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.ti-red{background:#FEE2E2}.ti-amber{background:var(--amber-100)}.ti-blue{background:var(--blue-50)}.ti-green{background:var(--success-bg)}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:13px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-sub{font-size:11px;color:var(--gray-500);margin-top:1px}
+.task-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.pp-red{background:#FEE2E2;color:var(--error)}.pp-amber{background:var(--amber-100);color:#92400E}.pp-blue{background:var(--blue-50);color:#1D4ED8}.pp-green{background:var(--success-bg);color:var(--success-dark)}
+
+/* ── POLICY CARD ── */
+.policy-card{background:linear-gradient(135deg,var(--navy-800),var(--navy-700));border-radius:var(--r-lg);padding:16px;margin-bottom:10px;color:white;position:relative;overflow:hidden;cursor:pointer}
+.policy-card::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(68,114,196,.15)}
+.pol-type{font-size:10px;color:rgba(255,255,255,.55);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.pol-name{font-size:15px;font-weight:700;margin-bottom:12px}
+.pol-row{display:flex;justify-content:space-between;align-items:flex-end}
+.pf label{font-size:9.5px;color:rgba(255,255,255,.5)}
+.pf value{display:block;font-size:13px;font-weight:600}
+.renew-chip{background:var(--amber-500);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;color:white;white-space:nowrap}
+.renew-chip.exp{background:var(--error)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:flex-end;z-index:500;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--white);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);padding:0 0 calc(env(safe-area-inset-bottom,0)+16px)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--gray-300);margin:12px auto 0}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 12px;border-bottom:1px solid var(--gray-100)}
+.modal-title{font-size:16px;font-weight:700;color:var(--navy-800)}
+.modal-close{font-size:20px;color:var(--gray-400);width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:16px 18px}
+
+/* ── CONFIRM MODAL ── */
+#modal-confirm .modal-sheet{max-height:280px}
+.confirm-ico{text-align:center;font-size:44px;margin-bottom:8px}
+.confirm-msg{text-align:center;font-size:15px;font-weight:600;color:var(--gray-800);margin-bottom:4px}
+.confirm-sub{text-align:center;font-size:12px;color:var(--gray-500);margin-bottom:20px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px}
+.btn-cancel{flex:1;height:46px;border-radius:var(--r-md);background:var(--gray-100);color:var(--gray-700);font-size:14px;font-weight:600}
+.btn-confirm-del{flex:1;height:46px;border-radius:var(--r-md);background:var(--error);color:white;font-size:14px;font-weight:700}
+.btn-confirm-ok{flex:1;height:46px;border-radius:var(--r-md);background:var(--navy-800);color:white;font-size:14px;font-weight:700}
+
+/* ── FORM ── */
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:5px;display:block}
+.form-input{width:100%;padding:10px 13px;border-radius:var(--r-sm);border:1.5px solid var(--gray-200);font-size:14px;color:var(--gray-900);background:var(--gray-50);transition:border-color .2s,background .2s}
+.form-input:focus{border-color:var(--blue-500);background:white}
+.form-select{width:100%;padding:10px 13px;border-radius:var(--r-sm);border:1.5px solid var(--gray-200);font-size:14px;color:var(--gray-900);background:var(--gray-50);-webkit-appearance:none}
+.form-textarea{width:100%;padding:10px 13px;border-radius:var(--r-sm);border:1.5px solid var(--gray-200);font-size:13px;color:var(--gray-900);background:var(--gray-50);min-height:80px;resize:vertical;line-height:1.5}
+.form-textarea:focus,.form-select:focus{border-color:var(--blue-500);background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-save{width:100%;height:48px;border-radius:var(--r-md);background:var(--navy-800);color:white;font-size:15px;font-weight:700;margin-top:6px}
+.btn-save:active{opacity:.85}
+.btn-del-form{width:100%;height:44px;border-radius:var(--r-md);background:var(--error-bg);color:var(--error);font-size:14px;font-weight:600;margin-top:8px;display:none}
+.form-divider{border:none;border-top:1px solid var(--gray-100);margin:14px 0}
+
+/* ── DETAIL ── */
+.detail-screen{position:fixed;inset:0;z-index:300;background:var(--surface);display:none;flex-direction:column}
+.detail-screen.open{display:flex}
+.det-hdr{background:var(--navy-800);padding:0 16px 16px;flex-shrink:0}
+.back-row{height:44px;display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.7);font-size:13px;cursor:pointer}
+.det-profile{display:flex;align-items:center;gap:14px}
+.det-av{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:white;flex-shrink:0}
+.det-name{font-size:19px;font-weight:800;color:white}
+.det-job{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px}
+.det-chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.dc{padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:600}
+.dc-amber{background:var(--amber-500);color:white}
+.dc-blue{background:rgba(68,114,196,.3);color:var(--blue-100)}
+.dc-navy{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+.tab-bar{display:flex;background:white;border-bottom:1px solid var(--gray-200);flex-shrink:0}
+.tab-btn{flex:1;padding:11px 0;font-size:12px;color:var(--gray-500);font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn.active{color:var(--navy-800);font-weight:700;border-color:var(--navy-800)}
+.tl-item{display:flex;gap:10px;margin-bottom:16px;position:relative}
+.tl-item::before{content:'';position:absolute;left:15px;top:32px;bottom:-16px;width:1px;background:var(--gray-200)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:1}
+.tl-call{background:var(--success-bg)}.tl-line{background:var(--blue-50)}.tl-meet{background:var(--amber-100)}
+.tl-body{flex:1;padding-top:4px}
+.tl-date{font-size:10.5px;color:var(--gray-500)}
+.tl-note{font-size:12.5px;color:var(--gray-700);margin-top:3px;line-height:1.55}
+.info-grid{display:grid;grid-template-columns:1fr 1fr}
+.info-field{padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.info-field label{font-size:10.5px;color:var(--gray-500)}
+.info-field value{display:block;font-size:13px;font-weight:600;color:var(--gray-800);margin-top:2px}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dash-tile{background:var(--white);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow-sm)}
+.dash-num{font-size:30px;font-weight:800;color:var(--navy-800)}
+.dash-lbl{font-size:11px;color:var(--gray-500);margin-top:1px}
+.dash-sub{font-size:10px;font-weight:600;margin-top:5px}
+.ds-red{color:var(--error)}.ds-green{color:var(--success)}.ds-amber{color:var(--amber-500)}
+.prog-card{background:var(--white);border-radius:var(--r-md);padding:14px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:7px}
+.prog-row span:first-child{font-size:12.5px;font-weight:600;color:var(--gray-700)}
+.prog-row span:last-child{font-size:12.5px;font-weight:700;color:var(--navy-800)}
+.prog-track{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.pf-navy{background:linear-gradient(90deg,var(--navy-700),var(--blue-500))}
+.pf-green{background:linear-gradient(90deg,#16A34A,var(--success))}
+.pf-amber{background:linear-gradient(90deg,var(--amber-600),var(--amber-500))}
+
+/* ── TRACKING ── */
+.tracking-period{display:flex;gap:6px;margin-bottom:14px}
+.period-btn{flex:1;height:34px;border-radius:var(--r-sm);font-size:12px;font-weight:600;transition:all .2s}
+.period-btn.on{background:var(--navy-800);color:white}
+.period-btn.off{background:var(--white);color:var(--gray-600);border:1.5px solid var(--gray-200)}
+.track-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.track-tile{background:var(--white);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow-sm);text-align:center}
+.track-num{font-size:32px;font-weight:800;color:var(--navy-800);line-height:1}
+.track-lbl{font-size:11px;color:var(--gray-500);margin-top:3px}
+.track-sub{font-size:10px;color:var(--blue-500);font-weight:600;margin-top:4px}
+
+/* ── LICENSE SCREEN ── */
+#screen-license{background:var(--navy-900);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
+#screen-license.active{display:flex}
+.lic-logo{margin-bottom:24px}
+.lic-title{font-size:22px;font-weight:800;color:white;margin-bottom:6px}
+.lic-title span{color:var(--blue-400)}
+.lic-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:32px;line-height:1.6}
+.lic-free-badge{background:var(--navy-700);border-radius:var(--r-lg);padding:14px 20px;margin-bottom:24px;width:100%}
+.lic-free-badge .badge-title{font-size:13px;font-weight:700;color:var(--amber-400);margin-bottom:4px}
+.lic-free-badge .badge-desc{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
+.lic-input-wrap{width:100%;margin-bottom:12px}
+.lic-input{width:100%;padding:14px 16px;border-radius:var(--r-md);border:2px solid var(--navy-600);background:var(--navy-800);color:white;font-size:15px;font-weight:600;letter-spacing:1px;text-align:center}
+.lic-input:focus{border-color:var(--blue-500)}
+.lic-input::placeholder{color:rgba(255,255,255,.3);letter-spacing:0;font-weight:400}
+.btn-activate{width:100%;height:52px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--blue-500),var(--navy-700));color:white;font-size:16px;font-weight:700;margin-bottom:10px}
+.btn-free{width:100%;height:44px;border-radius:var(--r-md);background:transparent;color:rgba(255,255,255,.4);font-size:13px;border:1.5px solid var(--navy-700)}
+.lic-contact{margin-top:20px;font-size:11px;color:rgba(255,255,255,.3)}
+.lic-contact a{color:var(--blue-400)}
+.pro-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--amber-600),var(--amber-500));border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;margin-bottom:8px}
+
+/* ── SETTINGS ── */
+.settings-section{background:var(--white);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.settings-hdr{padding:12px 16px 8px;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.8px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid var(--gray-100);cursor:pointer}
+.settings-row:first-of-type{border-top:none}
+.settings-left{display:flex;align-items:center;gap:12px}
+.settings-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.si-blue{background:var(--blue-50)}.si-green{background:var(--success-bg)}.si-amber{background:var(--amber-100)}.si-red{background:var(--error-bg)}.si-navy{background:var(--blue-50)}
+.settings-info{}
+.settings-name{font-size:14px;font-weight:600;color:var(--gray-900)}
+.settings-desc{font-size:11px;color:var(--gray-500);margin-top:1px}
+.settings-arrow{color:var(--gray-300);font-size:16px}
+
+/* ── FAB ── */
+.fab{position:fixed;right:16px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0) + 12px);width:52px;height:52px;background:linear-gradient(135deg,var(--navy-700),var(--blue-500));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;color:white;box-shadow:0 6px 24px rgba(31,56,100,.4);z-index:150;cursor:pointer;transition:transform .15s}
+.fab:active{transform:scale(.92)}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:calc(env(safe-area-inset-top,0)+64px);left:50%;transform:translateX(-50%) translateY(-20px);background:var(--navy-900);color:white;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:600;z-index:1000;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:48px 24px;color:var(--gray-400)}
+.empty-ico{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-txt{font-size:14px;color:var(--gray-500);font-weight:600}
+.empty-sub{font-size:12px;margin-top:4px}
+
+/* ── RESPONSIVE ── */
+@media(min-width:600px){
+  .bottom-nav,#app{max-width:600px;left:50%;transform:translateX(-50%)}
+  #app{position:relative;height:100%}
+  .fab{right:calc(50% - 300px + 16px)}
+  .toast{top:72px}
+  .detail-screen,.modal-overlay{max-width:600px;left:50%;transform:translateX(-50%)}
+  .modal-overlay.open{transform:translateX(-50%)}
+}
+@media(min-width:768px){:root{--nav-h:70px}.stat-strip{grid-template-columns:repeat(4,1fr)}.dash-grid,.track-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════ LICENSE SCREEN ══════════ -->
+<div id="screen-license" class="screen">
+  <div class="lic-logo">
+    <div style="width:64px;height:64px;background:var(--blue-500);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:white;margin:0 auto 10px;position:relative">
+      PnR<div style="position:absolute;top:8px;right:8px;width:10px;height:10px;background:var(--amber-500);border-radius:50%;border:2px solid var(--blue-500)"></div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase">Insurance CRM</div>
+  </div>
+  <div class="lic-title">P<span>n</span>R CRM</div>
+  <div class="lic-sub">ระบบจัดการลูกค้าสำหรับตัวแทนประกัน<br>ทำงานออฟไลน์ได้ทุกที่</div>
+  <div class="lic-free-badge">
+    <div class="badge-title">⚡ Free — ใช้งานได้ทันที</div>
+    <div class="badge-desc">จัดการลูกค้าได้สูงสุด <strong style="color:var(--amber-400)">10 ราย</strong><br>อัปเกรด Pro เพื่อใช้งานเต็มรูปแบบ</div>
+  </div>
+  <div class="lic-input-wrap">
+    <input class="lic-input" id="license-key-input" placeholder="กรอก License Key เพื่อ Activate Pro" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <button class="btn-activate" onclick="activateLicense()">🔓 Activate Pro</button>
+  <button class="btn-free" onclick="useFree()">ใช้งาน Free ต่อไป →</button>
+  <div class="lic-contact">ปัญหาการใช้งาน: <a href="mailto:plannreport@gmail.com">plannreport@gmail.com</a></div>
+</div>
+
+<!-- ══════════ TODAY SCREEN ══════════ -->
+<div id="screen-today" class="screen">
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="logo-wrap">
+        <div class="logo-mark">PnR<div class="dot"></div></div>
+        <div><div class="logo-text">P<span>n</span>R</div><div class="logo-sub">Insurance CRM</div></div>
+      </div>
+      <div class="hdr-right">
+        <div class="icon-btn" id="btn-notif" title="แจ้งเตือน">🔔<div class="bdot" id="notif-dot"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-area" id="today-content"></div>
+</div>
+
+<!-- ══════════ CUSTOMER SCREEN ══════════ -->
+<div id="screen-customers" class="screen">
+  <div class="top-bar">
+    <div class="page-hdr" style="padding-top:10px">
+      <div><div class="page-title">รายชื่อลูกค้า</div><div class="page-sub" id="cust-count-lbl">—</div></div>
+      <button class="page-btn" onclick="openAddCustomer()">＋ เพิ่มใหม่</button>
+    </div>
+    <div class="search-wrap">
+      <div class="search-box">
+        <span style="font-size:15px;color:rgba(255,255,255,.4)">🔍</span>
+        <input id="search-input" type="search" placeholder="ค้นหาชื่อ, เบอร์โทร...">
+      </div>
+    </div>
+  </div>
+  <div class="filter-row" id="cust-filters">
+    <div class="chip on" data-f="all">ทั้งหมด</div>
+    <div class="chip off" data-f="no30">ไม่ติดต่อ &gt;30 วัน</div>
+    <div class="chip off" data-f="no60">ไม่ติดต่อ &gt;60 วัน</div>
+    <div class="chip off" data-f="c3">ติดต่อ ≤3 วัน</div>
+    <div class="chip off" data-f="hot">🔥 Hot</div>
+    <div class="chip off" data-f="active">Active</div>
+    <div class="chip off" data-f="inactive">Inactive</div>
+    <div class="chip off" data-f="prospect">Prospect</div>
+  </div>
+  <div class="scroll-area" id="cust-list"></div>
+  <div class="fab" onclick="openAddCustomer()">＋</div>
+</div>
+
+<!-- ══════════ TASKS SCREEN ══════════ -->
+<div id="screen-tasks" class="screen">
+  <div class="top-bar">
+    <div class="page-hdr" style="padding-top:10px">
+      <div><div class="page-title">งานทั้งหมด</div><div class="page-sub" id="task-count-lbl">—</div></div>
+      <button class="page-btn" onclick="openAddTask(null)">＋ เพิ่มงาน</button>
+    </div>
+  </div>
+  <div class="filter-row" id="task-filters">
+    <div class="chip on" data-f="all">ทั้งหมด</div>
+    <div class="chip off" data-f="today">วันนี้</div>
+    <div class="chip off" data-f="overdue">เลยกำหนด</div>
+    <div class="chip off" data-f="pending">Pending</div>
+    <div class="chip off" data-f="done">เสร็จแล้ว</div>
+  </div>
+  <div class="scroll-area" id="task-list"></div>
+  <div class="fab" onclick="openAddTask(null)">＋</div>
+</div>
+
+<!-- ══════════ POLICIES SCREEN ══════════ -->
+<div id="screen-policies" class="screen">
+  <div class="top-bar">
+    <div class="page-hdr" style="padding-top:10px">
+      <div><div class="page-title">กรมธรรม์</div><div class="page-sub" id="pol-count-lbl">—</div></div>
+      <button class="page-btn" onclick="openAddPolicy(null)">＋ เพิ่ม</button>
+    </div>
+  </div>
+  <div class="filter-row" id="pol-filters">
+    <div class="chip on" data-f="all">ทั้งหมด</div>
+    <div class="chip off" data-f="exp30">ต่ออายุ 30 วัน</div>
+    <div class="chip off" data-f="exp60">ต่ออายุ 60 วัน</div>
+    <div class="chip off" data-f="active">Active</div>
+    <div class="chip off" data-f="expired">หมดอายุ</div>
+  </div>
+  <div class="scroll-area" id="pol-list"></div>
+  <div class="fab" onclick="openAddPolicy(null)">＋</div>
+</div>
+
+<!-- ══════════ DASHBOARD SCREEN ══════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="top-bar">
+    <div class="page-hdr" style="padding-top:10px">
+      <div><div class="page-title">Dashboard & Tracking</div><div class="page-sub" id="dash-date-lbl">—</div></div>
+    </div>
+  </div>
+  <div class="scroll-area" id="dash-content"></div>
+</div>
+
+<!-- ══════════ SETTINGS SCREEN ══════════ -->
+<div id="screen-settings" class="screen">
+  <div class="top-bar">
+    <div class="page-hdr" style="padding-top:10px">
+      <div><div class="page-title">ตั้งค่า & ข้อมูล</div></div>
+    </div>
+  </div>
+  <div class="scroll-area" id="settings-content"></div>
+</div>
+
+<!-- ══════════ DETAIL SCREEN ══════════ -->
+<div class="detail-screen" id="detail-screen">
+  <div class="det-hdr" id="det-hdr"></div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="contacts">ติดต่อ</button>
+    <button class="tab-btn" data-tab="tasks">งาน</button>
+    <button class="tab-btn" data-tab="policies">กรมธรรม์</button>
+    <button class="tab-btn" data-tab="info">ข้อมูล</button>
+  </div>
+  <div class="scroll-area" id="det-content"></div>
+  <div class="fab" id="det-fab">＋</div>
+</div>
+
+<!-- ══════════ BOTTOM NAV ══════════ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn active" data-s="today"><div class="nav-ico">🏠</div><span class="nav-lbl">วันนี้</span><span class="nav-badge" id="nb-today"></span></button>
+  <button class="nav-btn" data-s="customers"><div class="nav-ico">👥</div><span class="nav-lbl">ลูกค้า</span></button>
+  <button class="nav-btn" data-s="tasks"><div class="nav-ico">✅</div><span class="nav-lbl">งาน</span><span class="nav-badge" id="nb-tasks"></span></button>
+  <button class="nav-btn" data-s="policies"><div class="nav-ico">📋</div><span class="nav-lbl">กรมธรรม์</span></button>
+  <button class="nav-btn" data-s="dashboard"><div class="nav-ico">📊</div><span class="nav-lbl">สรุป</span></button>
+  <button class="nav-btn" data-s="settings"><div class="nav-ico">⚙️</div><span class="nav-lbl">ตั้งค่า</span></button>
+</nav>
+</div><!-- #app -->
+
+<!-- ══════════ TOAST ══════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════ CONFIRM MODAL ══════════ -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-body" style="padding-top:20px">
+      <div class="confirm-ico" id="confirm-ico">⚠️</div>
+      <div class="confirm-msg" id="confirm-msg">ยืนยันการดำเนินการ?</div>
+      <div class="confirm-sub" id="confirm-sub"></div>
+      <div class="confirm-btns">
+        <button class="btn-cancel" onclick="closeModal('modal-confirm')">ยกเลิก</button>
+        <button id="confirm-action-btn" class="btn-confirm-del">ลบ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD/EDIT CUSTOMER MODAL ══════════ -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-cust-title">เพิ่มลูกค้าใหม่</div>
+      <button class="modal-close" onclick="closeModal('modal-customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ce-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">ชื่อ-นามสกุล *</label><input class="form-input" id="ce-name" placeholder="กรอกชื่อ"></div>
+        <div class="form-group"><label class="form-label">เบอร์โทร *</label><input class="form-input" id="ce-phone" type="tel" placeholder="08x-xxx-xxxx"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">อายุ</label><input class="form-input" id="ce-age" type="number" placeholder="ปี"></div>
+        <div class="form-group"><label class="form-label">เพศ</label><select class="form-select" id="ce-gender"><option value="">— เลือก —</option><option value="ชาย">ชาย</option><option value="หญิง">หญิง</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">อาชีพ</label><input class="form-input" id="ce-occ" placeholder="เช่น นักธุรกิจ, ข้าราชการ"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">สถานะ</label><select class="form-select" id="ce-status"><option value="prospect">Prospect</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div class="form-group"><label class="form-label">ความสนใจ</label><select class="form-select" id="ce-interest"><option value="cold">❄️ Cold</option><option value="warm">🌟 Warm</option><option value="hot">🔥 Hot</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="ce-priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select></div>
+        <div class="form-group"><label class="form-label">รายได้/เดือน</label><select class="form-select" id="ce-income"><option value="">— เลือก —</option><option value="<20k">&lt;20,000</option><option value="20-50k">20,000–50,000</option><option value="50-100k">50,000–100,000</option><option value=">100k">&gt;100,000</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">แหล่งที่มา</label><input class="form-input" id="ce-source" placeholder="เช่น แนะนำ, Facebook, Cold call"></div>
+      <button class="btn-save" onclick="saveCustomer()">💾 บันทึกลูกค้า</button>
+      <button class="btn-del-form" id="btn-del-cust" onclick="confirmDelete('customer', +document.getElementById(`ce-id`).value)">🗑 ลบลูกค้านี้</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD CONTACT MODAL ══════════ -->
+<div class="modal-overlay" id="modal-contact">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title">บันทึกการติดต่อ</div>
+      <button class="modal-close" onclick="closeModal('modal-contact')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cnt-cust-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">วันที่ *</label><input class="form-input" id="cnt-date" type="date"></div>
+        <div class="form-group"><label class="form-label">ช่องทาง</label><select class="form-select" id="cnt-type"><option value="call">📞 โทรศัพท์</option><option value="line">💬 LINE</option><option value="meeting">🤝 นัดพบ</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">บันทึก / หมายเหตุ</label><textarea class="form-textarea" id="cnt-note" placeholder="รายละเอียดการติดต่อ..."></textarea></div>
+      <button class="btn-save" onclick="saveContact()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD/EDIT TASK MODAL ══════════ -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-task-title">เพิ่มงานใหม่</div>
+      <button class="modal-close" onclick="closeModal('modal-task')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="te-id">
+      <div class="form-group"><label class="form-label">ลูกค้า *</label><select class="form-select" id="te-cust"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">ประเภท</label><select class="form-select" id="te-type"><option value="call">📞 โทร</option><option value="followup">🔁 Follow up</option><option value="meeting">🤝 นัดพบ</option><option value="renewal">📋 ต่ออายุ</option></select></div>
+        <div class="form-group"><label class="form-label">กำหนดเสร็จ *</label><input class="form-input" id="te-due" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="te-priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select></div>
+        <div class="form-group"><label class="form-label">สถานะ</label><select class="form-select" id="te-status"><option value="pending">Pending</option><option value="done">เสร็จแล้ว</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">หมายเหตุ</label><textarea class="form-textarea" id="te-note" placeholder="รายละเอียดงาน..."></textarea></div>
+      <button class="btn-save" onclick="saveTask()">💾 บันทึกงาน</button>
+      <button class="btn-del-form" id="btn-del-task" onclick="confirmDelete('task', +document.getElementById(`te-id`).value)">🗑 ลบงานนี้</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD/EDIT POLICY MODAL ══════════ -->
+<div class="modal-overlay" id="modal-policy">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-pol-title">เพิ่มกรมธรรม์</div>
+      <button class="modal-close" onclick="closeModal('modal-policy')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pe-id">
+      <div class="form-group"><label class="form-label">ลูกค้า *</label><select class="form-select" id="pe-cust"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">ประเภทกรมธรรม์</label><input class="form-input" id="pe-type" placeholder="ชีวิต, สุขภาพ, PA"></div>
+        <div class="form-group"><label class="form-label">สถานะ</label><select class="form-select" id="pe-status"><option value="active">Active</option><option value="expired">หมดอายุ</option><option value="cancelled">ยกเลิก</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">ชื่อแผน</label><input class="form-input" id="pe-name" placeholder="เช่น คุ้มครองครบวงจร 20 ปี"></div>
+      <div class="form-group"><label class="form-label">เบี้ยประกัน/ปี (บาท)</label><input class="form-input" id="pe-premium" type="number" placeholder="0"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">วันเริ่ม</label><input class="form-input" id="pe-start" type="date"></div>
+        <div class="form-group"><label class="form-label">วันต่ออายุ</label><input class="form-input" id="pe-renewal" type="date"></div>
+      </div>
+      <button class="btn-save" onclick="savePolicy()">💾 บันทึกกรมธรรม์</button>
+      <button class="btn-del-form" id="btn-del-pol" onclick="confirmDelete('policy', +document.getElementById(`pe-id`).value)">🗑 ลบกรมธรรม์นี้</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ══════════════════════════════════
+   CONFIG
+══════════════════════════════════ */
+const CFG = {
+  SUPABASE_URL: 'https://lqbbqipcxxprwrtvebpt.supabase.co',
+  SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxYmJxaXBjeHhwcndydHZlYnB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NTc5MjMsImV4cCI6MjA5MzQzMzkyM30.GzDAGQll7g48eVXcZ-F7EVDNrlW5FAHEAHaxOS0LUrk',
+  MASTER_KEY: 'ip2cxx_5PNR#prwrt01nsura1n9c9e9v%ebpt',
+  FREE_LIMIT: 10,
+  PRO_LIMIT: 2000,
+  SUPPORT_EMAIL: 'plannreport@gmail.com',
+};
+
+/* ══════════════════════════════════
+   INDEXEDDB
+══════════════════════════════════ */
+let db;
+function initDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open('PnRCRM',2);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      const stores={
+        customers:['status','interest_level','priority_level'],
+        contacts:['customer_id','contact_date'],
+        tasks:['customer_id','due_date','status'],
+        policies:['customer_id','renewal_date','status'],
+      };
+      Object.entries(stores).forEach(([name,idxs])=>{
+        if(!d.objectStoreNames.contains(name)){
+          const s=d.createObjectStore(name,{keyPath:'id',autoIncrement:true});
+          idxs.forEach(i=>s.createIndex(i,i));
+        }
+      });
+    };
+    req.onsuccess=e=>{db=e.target.result;res()};
+    req.onerror=rej;
+  });
+}
+const tx=(store,mode='readonly')=>db.transaction(store,mode).objectStore(store);
+const dbAll=store=>new Promise((res,rej)=>{const r=tx(store).getAll();r.onsuccess=e=>res(e.target.result);r.onerror=rej});
+const dbGet=(store,id)=>new Promise((res,rej)=>{const r=tx(store).get(id);r.onsuccess=e=>res(e.target.result);r.onerror=rej});
+const dbPut=(store,obj)=>new Promise((res,rej)=>{const r=tx(store,'readwrite').put(obj);r.onsuccess=e=>res(e.target.result);r.onerror=rej});
+const dbDel=(store,id)=>new Promise((res,rej)=>{const r=tx(store,'readwrite').delete(id);r.onsuccess=()=>res();r.onerror=rej});
+const dbByIdx=(store,idx,val)=>new Promise((res,rej)=>{const r=tx(store).index(idx).getAll(val);r.onsuccess=e=>res(e.target.result);r.onerror=rej});
+
+/* ══════════════════════════════════
+   LICENSE SYSTEM
+══════════════════════════════════ */
+let LICENSE={tier:'free',key:null,deviceId:null};
+
+function getDeviceId(){
+  let id=localStorage.getItem('pnr_device_id');
+  if(!id){
+    id='dev_'+Math.random().toString(36).substr(2,9)+'_'+Date.now().toString(36);
+    localStorage.setItem('pnr_device_id',id);
+  }
+  return id;
+}
+
+async function loadLicense(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('pnr_license')||'{}');
+    if(saved.tier==='pro'&&saved.key){
+      LICENSE={...saved,deviceId:getDeviceId()};
+    }
+  }catch(e){}
+}
+
+async function activateLicense(){
+  const key=document.getElementById('license-key-input').value.trim();
+  if(!key){showToast('⚠️ กรอก License Key ก่อน');return}
+
+  // Master key check (offline, no server needed)
+  if(key===CFG.MASTER_KEY){
+    LICENSE={tier:'pro',key,deviceId:getDeviceId(),isMaster:true};
+    localStorage.setItem('pnr_license',JSON.stringify(LICENSE));
+    showToast('✅ Master Key — Pro Activated!');
+    navTo('today');
+    return;
+  }
+
+  // Supabase activation
+  showToast('⏳ กำลังตรวจสอบ...');
+  try{
+    const deviceId=getDeviceId();
+    // Check key exists and not used by another device
+    const res=await fetch(`${CFG.SUPABASE_URL}/rest/v1/licenses?key=eq.${encodeURIComponent(key)}&select=*`,{
+      headers:{'apikey':CFG.SUPABASE_KEY,'Authorization':'Bearer '+CFG.SUPABASE_KEY}
+    });
+    const rows=await res.json();
+    if(!rows||!rows.length){showToast('❌ ไม่พบ License Key นี้');return}
+    const row=rows[0];
+    if(row.device_id&&row.device_id!==deviceId){showToast('❌ Key นี้ถูกใช้บน device อื่นแล้ว');return}
+
+    // Activate: assign device_id
+    if(!row.device_id){
+      await fetch(`${CFG.SUPABASE_URL}/rest/v1/licenses?key=eq.${encodeURIComponent(key)}`,{
+        method:'PATCH',
+        headers:{'apikey':CFG.SUPABASE_KEY,'Authorization':'Bearer '+CFG.SUPABASE_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({device_id:deviceId,activated_at:new Date().toISOString()})
+      });
+    }
+    LICENSE={tier:'pro',key,deviceId};
+    localStorage.setItem('pnr_license',JSON.stringify(LICENSE));
+    showToast('🎉 Pro Activated! ยินดีต้อนรับ');
+    navTo('today');
+  }catch(e){
+    // Network error — allow if already saved
+    const saved=JSON.parse(localStorage.getItem('pnr_license')||'{}');
+    if(saved.key===key&&saved.tier==='pro'){
+      LICENSE=saved;navTo('today');
+    }else{
+      showToast('❌ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
+    }
+  }
+}
+
+function useFree(){navTo('today')}
+
+function isPro(){return LICENSE.tier==='pro'}
+
+async function checkLimit(){
+  if(isPro())return true;
+  const custs=await dbAll('customers');
+  if(custs.length>=CFG.FREE_LIMIT){
+    showConfirm('🔒','ครบ 10 รายแล้ว (Free)','อัปเกรด Pro เพื่อเพิ่มลูกค้าได้ถึง 2,000 ราย',()=>navTo('settings'),'อัปเกรด Pro',false);
+    return false;
+  }
+  return true;
+}
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+const todayStr=()=>new Date().toISOString().split('T')[0];
+const daysAgo=d=>d?Math.floor((Date.now()-new Date(d))/86400000):null;
+const daysUntil=d=>{if(!d)return null;const t=new Date(d);t.setHours(0,0,0,0);const n=new Date();n.setHours(0,0,0,0);return Math.floor((t-n)/86400000)};
+function fmtDate(s){
+  if(!s)return'—';
+  const d=new Date(s);
+  const m=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return`${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+const fmtMoney=n=>n||n===0?'฿'+Number(n).toLocaleString():'—';
+function avColor(name){
+  const c=[['#1F3864','#4472C4'],['#7C3AED','#4472C4'],['#0D9488','#22C55E'],['#DC2626','#F59E0B'],['#1D4ED8','#7C3AED'],['#065F46','#22C55E'],['#92400E','#F59E0B']];
+  const i=(name?name.charCodeAt(0):0)%c.length;
+  return`background:linear-gradient(135deg,${c[i][0]},${c[i][1]})`;
+}
+const ini=n=>n?n.charAt(0):'?';
+const icoInterest=l=>l==='hot'?'🔥':l==='warm'?'🌟':'❄️';
+const icoType=t=>t==='call'?'📞':t==='followup'?'🔁':t==='meeting'?'🤝':'📋';
+const icoContact=t=>t==='call'?'📞':t==='line'?'💬':'🤝';
+const clsContact=t=>t==='call'?'tl-call':t==='line'?'tl-line':'tl-meet';
+function lcLabel(days){
+  if(days===null)return{txt:'ยังไม่เคยติดต่อ',cls:'red'};
+  if(days===0)return{txt:'วันนี้',cls:'green'};
+  if(days<=3)return{txt:`${days} วันที่แล้ว`,cls:'green'};
+  if(days<=30)return{txt:`${days} วันที่แล้ว`,cls:'amber'};
+  return{txt:`${days} วันที่แล้ว`,cls:'red'};
+}
+function typeLabel(t){return t==='call'?'โทร':t==='followup'?'Follow up':t==='meeting'?'นัดพบ':'ต่ออายุ'}
+
+let _cc=null;
+async function getLastContactMap(){
+  if(!_cc){const all=await dbAll('contacts');_cc={};all.forEach(c=>{if(!_cc[c.customer_id]||c.contact_date>_cc[c.customer_id])_cc[c.customer_id]=c.contact_date})}
+  return _cc;
+}
+function clearCC(){_cc=null}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function showToast(msg,dur=2500){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),dur);
+}
+
+/* ══════════════════════════════════
+   MODAL
+══════════════════════════════════ */
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id)});
+});
+
+/* CONFIRM */
+function showConfirm(ico,msg,sub,onOk,okLabel='ลบ',isDanger=true){
+  document.getElementById('confirm-ico').textContent=ico;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-sub').textContent=sub;
+  const btn=document.getElementById('confirm-action-btn');
+  btn.textContent=okLabel;
+  btn.className=isDanger?'btn-confirm-del':'btn-confirm-ok';
+  btn.onclick=()=>{closeModal('modal-confirm');onOk()};
+  openModal('modal-confirm');
+}
+
+async function confirmDelete(type,id){
+  if(!id)return;
+  const msgs={
+    customer:{ico:'🗑',msg:'ลบลูกค้านี้?',sub:'จะลบข้อมูลติดต่อ งาน และกรมธรรม์ทั้งหมดของลูกค้าคนนี้ด้วย'},
+    task:{ico:'🗑',msg:'ลบงานนี้?',sub:'ไม่สามารถกู้คืนได้'},
+    policy:{ico:'🗑',msg:'ลบกรมธรรม์นี้?',sub:'ไม่สามารถกู้คืนได้'},
+    contact:{ico:'🗑',msg:'ลบบันทึกนี้?',sub:'ไม่สามารถกู้คืนได้'},
+  };
+  const m=msgs[type];
+  closeModal('modal-customer');closeModal('modal-task');closeModal('modal-policy');
+  showConfirm(m.ico,m.msg,m.sub,async()=>{
+    if(type==='customer'){
+      const cs=await dbByIdx('contacts','customer_id',id);
+      const ts=await dbByIdx('tasks','customer_id',id);
+      const ps=await dbByIdx('policies','customer_id',id);
+      await Promise.all([dbDel('customers',id),...cs.map(x=>dbDel('contacts',x.id)),...ts.map(x=>dbDel('tasks',x.id)),...ps.map(x=>dbDel('policies',x.id))]);
+      clearCC();showToast('🗑 ลบลูกค้าแล้ว');closeDetail();
+    }else if(type==='task'){
+      await dbDel('tasks',id);showToast('🗑 ลบงานแล้ว');closeModal('modal-task');renderTasks();renderToday();if(detCustId)renderDetTab(activeTab);
+    }else if(type==='policy'){
+      await dbDel('policies',id);showToast('🗑 ลบกรมธรรม์แล้ว');closeModal('modal-policy');renderPolicies();renderDashboard();if(detCustId)renderDetTab(activeTab);
+    }else if(type==='contact'){
+      await dbDel('contacts',id);clearCC();showToast('🗑 ลบแล้ว');if(detCustId)renderDetTab('contacts');
+    }
+  });
+}
+
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+let currentScreen='today';
+document.querySelectorAll('.nav-btn[data-s]').forEach(btn=>{
+  btn.addEventListener('click',()=>navTo(btn.dataset.s));
+});
+function navTo(s){
+  closeDetail();
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById(`screen-${s}`)?.classList.add('active');
+  document.querySelector(`.nav-btn[data-s="${s}"]`)?.classList.add('active');
+  document.getElementById('bottom-nav').style.display='flex';
+  currentScreen=s;
+  if(s==='today')renderToday();
+  else if(s==='customers')renderCustomers();
+  else if(s==='tasks')renderTasks();
+  else if(s==='policies')renderPolicies();
+  else if(s==='dashboard')renderDashboard();
+  else if(s==='settings')renderSettings();
+}
+
+/* ══════════════════════════════════
+   DETAIL
+══════════════════════════════════ */
+let detCustId=null;
+let activeTab='contacts';
+
+async function openDetail(id){
+  detCustId=id;clearCC();
+  const c=await dbGet('customers',id);
+  if(!c)return;
+  const lm=await getLastContactMap();
+  const lc=lcLabel(lm[id]?daysAgo(lm[id]):null);
+  document.getElementById('det-hdr').innerHTML=`
+    <div class="back-row" onclick="closeDetail()">‹ ย้อนกลับ</div>
+    <div class="det-profile">
+      <div class="det-av" style="${avColor(c.name)}">${ini(c.name)}</div>
+      <div>
+        <div class="det-name">${c.name}</div>
+        <div class="det-job">${c.occupation||'—'} · ${c.phone||'—'}</div>
+        <div class="det-chips">
+          <span class="dc dc-amber">${icoInterest(c.interest_level)} ${c.interest_level||'—'}</span>
+          <span class="dc dc-blue">${c.status||'—'}</span>
+          ${c.priority_level==='high'?'<span class="dc dc-navy">⭐ High</span>':''}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('detail-screen').classList.add('open');
+  document.getElementById('bottom-nav').style.display='none';
+  activeTab='contacts';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="contacts"]').classList.add('active');
+  renderDetTab('contacts');
+  document.getElementById('det-fab').onclick=()=>openContactModal(id);
+}
+
+function closeDetail(){
+  document.getElementById('detail-screen').classList.remove('open');
+  document.getElementById('bottom-nav').style.display='flex';
+  detCustId=null;
+  if(currentScreen==='customers')renderCustomers();
+  else if(currentScreen==='today')renderToday();
+}
+
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab=btn.dataset.tab;
+    renderDetTab(activeTab);
+    const fab=document.getElementById('det-fab');
+    if(activeTab==='contacts')fab.onclick=()=>openContactModal(detCustId);
+    else if(activeTab==='tasks')fab.onclick=()=>openAddTask(detCustId);
+    else if(activeTab==='policies')fab.onclick=()=>openAddPolicy(detCustId);
+    else fab.onclick=()=>openEditCustomer(detCustId);
+  });
+});
+
+async function renderDetTab(tab){
+  const el=document.getElementById('det-content');
+  if(!detCustId){el.innerHTML='';return}
+  if(tab==='contacts'){
+    const cs=(await dbByIdx('contacts','customer_id',detCustId)).sort((a,b)=>b.contact_date.localeCompare(a.contact_date));
+    if(!cs.length){el.innerHTML=emptyState('💬','ยังไม่มีบันทึกติดต่อ','กด + เพื่อเพิ่ม');return}
+    el.innerHTML=cs.map(c=>`
+      <div class="tl-item">
+        <div class="tl-dot ${clsContact(c.contact_type)}">${icoContact(c.contact_type)}</div>
+        <div class="tl-body">
+          <div class="tl-date">${fmtDate(c.contact_date)} · ${c.contact_type==='call'?'โทรศัพท์':c.contact_type==='line'?'LINE':'นัดพบ'}</div>
+          <div class="tl-note">${c.note||'—'}</div>
+        </div>
+        <button onclick="confirmDelete('contact',${c.id})" style="padding:6px 10px;color:var(--error);font-size:16px;flex-shrink:0">🗑</button>
+      </div>`).join('');
+  }else if(tab==='tasks'){
+    const ts=(await dbByIdx('tasks','customer_id',detCustId)).sort((a,b)=>a.due_date.localeCompare(b.due_date));
+    if(!ts.length){el.innerHTML=emptyState('✅','ยังไม่มีงาน','กด + เพื่อเพิ่ม');return}
+    el.innerHTML=ts.map(t=>taskRowHTML(t)).join('');
+  }else if(tab==='policies'){
+    const ps=await dbByIdx('policies','customer_id',detCustId);
+    if(!ps.length){el.innerHTML=emptyState('📋','ยังไม่มีกรมธรรม์','กด + เพื่อเพิ่ม');return}
+    el.innerHTML=ps.map(p=>policyCardHTML(p)).join('');
+  }else if(tab==='info'){
+    const c=await dbGet('customers',detCustId);
+    el.innerHTML=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy-800)">ข้อมูลส่วนตัว</div>
+        <button onclick="openEditCustomer(${detCustId})" style="background:var(--blue-50);color:var(--blue-500);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600">✏️ แก้ไข</button>
+      </div>
+      <div class="info-grid">
+        <div class="info-field"><label>ชื่อ-นามสกุล</label><value>${c.name||'—'}</value></div>
+        <div class="info-field"><label>เบอร์โทร</label><value>${c.phone||'—'}</value></div>
+        <div class="info-field"><label>อายุ</label><value>${c.age?c.age+' ปี':'—'}</value></div>
+        <div class="info-field"><label>เพศ</label><value>${c.gender||'—'}</value></div>
+        <div class="info-field"><label>อาชีพ</label><value>${c.occupation||'—'}</value></div>
+        <div class="info-field"><label>รายได้</label><value>${c.income_range||'—'}</value></div>
+        <div class="info-field"><label>สถานะ</label><value>${c.status||'—'}</value></div>
+        <div class="info-field"><label>ความสนใจ</label><value>${icoInterest(c.interest_level)} ${c.interest_level||'—'}</value></div>
+        <div class="info-field"><label>Priority</label><value>${c.priority_level||'—'}</value></div>
+        <div class="info-field"><label>แหล่งที่มา</label><value>${c.source||'—'}</value></div>
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-100)">
+        <button onclick="confirmDelete('customer',${detCustId})" style="width:100%;height:44px;border-radius:var(--r-md);background:var(--error-bg);color:var(--error);font-size:14px;font-weight:600">🗑 ลบลูกค้านี้</button>
+      </div>
+    </div>`;
+  }
+}
+
+/* ══════════════════════════════════
+   TODAY
+══════════════════════════════════ */
+async function renderToday(){
+  clearCC();
+  const [custs,tasks,contacts,pols]=await Promise.all([dbAll('customers'),dbAll('tasks'),dbAll('contacts'),dbAll('policies')]);
+  const lm={};contacts.forEach(c=>{if(!lm[c.customer_id]||c.contact_date>lm[c.customer_id])lm[c.customer_id]=c.contact_date});
+  _cc=lm;
+  const t=todayStr();
+  const overdue=tasks.filter(x=>x.status==='pending'&&x.due_date<t);
+  const todayT=tasks.filter(x=>x.status==='pending'&&x.due_date===t);
+  const no30=custs.filter(c=>{const d=lm[c.id]?daysAgo(lm[c.id]):999;return d>=30});
+  const expiring=pols.filter(p=>{if(p.status!=='active'||!p.renewal_date)return false;const d=daysUntil(p.renewal_date);return d!==null&&d>=0&&d<=30});
+  const custMap={};custs.forEach(c=>custMap[c.id]=c);
+
+  // Badges
+  const tot=overdue.length+todayT.length;
+  setBadge('nb-today',tot);setBadge('nb-tasks',overdue.length);
+  document.getElementById('notif-dot').style.display=expiring.length?'block':'none';
+
+  const toContact=custs.filter(c=>{const d=lm[c.id]?daysAgo(lm[c.id]):999;return d>=30})
+    .sort((a,b)=>(lm[b.id]?daysAgo(lm[b.id]):999)-(lm[a.id]?daysAgo(lm[a.id]):999)).slice(0,5);
+  const highInactive=custs.filter(c=>c.status==='inactive'&&(c.interest_level==='hot'||c.priority_level==='high'));
+
+  const tierBadge=isPro()?`<span style="background:var(--amber-500);color:white;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px">PRO</span>`:`<span style="background:var(--gray-200);color:var(--gray-600);font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px">FREE ${custs.length}/${CFG.FREE_LIMIT}</span>`;
+
+  let html=`
+    <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:13px;color:var(--gray-500)">สวัสดี, ${new Date().getHours()<12?'ตอนเช้า':'new Date().getHours()<17?ตอนบ่าย:ตอนเย็น'} 👋</div>
+        <div style="font-size:16px;font-weight:800;color:var(--navy-800);margin-top:2px">${new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long'})}</div>
+      </div>
+      <div>${tierBadge}</div>
+    </div>
+    <div class="stat-strip">
+      <div class="stat-tile st-red"><div class="stat-num">${overdue.length}</div><div class="stat-lbl">งานค้าง</div></div>
+      <div class="stat-tile st-amber"><div class="stat-num">${todayT.length}</div><div class="stat-lbl">งานวันนี้</div></div>
+      <div class="stat-tile st-blue"><div class="stat-num">${no30.length}</div><div class="stat-lbl">ไม่ติดต่อ &gt;30 วัน</div></div>
+    </div>`;
+
+  expiring.slice(0,2).forEach(p=>{
+    const d=daysUntil(p.renewal_date);
+    html+=`<div class="alert-ban"><span style="font-size:20px">⚠️</span><div class="alert-body"><strong>กรมธรรม์ใกล้หมดอายุ</strong><br>${custMap[p.customer_id]?.name||'—'} — ต่ออายุ ${fmtDate(p.renewal_date)} (อีก ${d} วัน)</div></div>`;
+  });
+
+  if(overdue.length){
+    html+=`<div class="sec-hdr"><div class="sec-title"><div class="sec-dot" style="background:var(--error)"></div>งานค้าง (${overdue.length})</div><span class="sec-link" onclick="navTo('tasks')">ดูทั้งหมด</span></div>`;
+    html+=overdue.slice(0,3).map(t=>taskRowHTML(t,custMap[t.customer_id]?.name)).join('');
+  }
+  if(todayT.length){
+    html+=`<div class="sec-hdr"><div class="sec-title"><div class="sec-dot" style="background:var(--amber-500)"></div>งานวันนี้ (${todayT.length})</div></div>`;
+    html+=todayT.map(t=>taskRowHTML(t,custMap[t.customer_id]?.name)).join('');
+  }
+  if(toContact.length){
+    html+=`<div class="sec-hdr"><div class="sec-title"><div class="sec-dot" style="background:var(--blue-500)"></div>ควรติดต่อ</div><span class="sec-link" onclick="navTo('customers')">ดูทั้งหมด</span></div>`;
+    html+=toContact.map(c=>custCardHTML(c,lm[c.id])).join('');
+  }
+  if(highInactive.length){
+    html+=`<div class="sec-hdr"><div class="sec-title"><div class="sec-dot" style="background:var(--error)"></div>High Value Inactive (${highInactive.length})</div></div>`;
+    html+=highInactive.slice(0,3).map(c=>custCardHTML(c,lm[c.id])).join('');
+  }
+  if(!custs.length){html+=emptyState('👥','ยังไม่มีข้อมูลลูกค้า','ไปที่แท็บ ลูกค้า เพื่อเพิ่มรายชื่อแรก')}
+  document.getElementById('today-content').innerHTML=html;
+}
+
+function setBadge(id,n){const el=document.getElementById(id);if(n>0){el.textContent=n;el.style.display='flex'}else el.style.display='none'}
+
+/* ══════════════════════════════════
+   CUSTOMERS
+══════════════════════════════════ */
+let custFilter='all',custSearch='';
+
+async function renderCustomers(){
+  clearCC();
+  const [custs,contacts]=await Promise.all([dbAll('customers'),dbAll('contacts')]);
+  const lm={};contacts.forEach(c=>{if(!lm[c.customer_id]||c.contact_date>lm[c.customer_id])lm[c.customer_id]=c.contact_date});
+  _cc=lm;
+
+  let list=custs.filter(c=>{
+    const q=custSearch.toLowerCase();
+    if(q&&!c.name?.toLowerCase().includes(q)&&!c.phone?.includes(q))return false;
+    const d=lm[c.id]?daysAgo(lm[c.id]):999;
+    if(custFilter==='no30')return d>=30;
+    if(custFilter==='no60')return d>=60;
+    if(custFilter==='c3')return d<=3;
+    if(custFilter==='hot')return c.interest_level==='hot';
+    if(custFilter==='active')return c.status==='active';
+    if(custFilter==='inactive')return c.status==='inactive';
+    if(custFilter==='prospect')return c.status==='prospect';
+    return true;
+  }).sort((a,b)=>(lm[b.id]?daysAgo(lm[b.id]):999)-(lm[a.id]?daysAgo(lm[a.id]):999));
+
+  document.getElementById('cust-count-lbl').textContent=`${list.length} จาก ${custs.length} ราย${isPro()?'':` (Free ${custs.length}/${CFG.FREE_LIMIT})`}`;
+  const el=document.getElementById('cust-list');
+  if(!list.length){el.innerHTML=emptyState('🔍','ไม่พบลูกค้า','ลองเปลี่ยน filter หรือเพิ่มใหม่');return}
+  el.innerHTML=list.map(c=>custCardHTML(c,lm[c.id])).join('');
+}
+
+function custCardHTML(c,lastDate){
+  const lc=lcLabel(lastDate?daysAgo(lastDate):null);
+  return`<div class="card cust-card" onclick="openDetail(${c.id})">
+    <div class="cust-top">
+      <div class="avatar" style="${avColor(c.name)}">${ini(c.name)}</div>
+      <div class="cust-meta">
+        <div class="cust-name">${c.name}</div>
+        <div class="cust-phone">${c.phone||'—'}${c.occupation?' · '+c.occupation:''}</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag tag-${c.interest_level||'cold'}">${icoInterest(c.interest_level)} ${c.interest_level||'cold'}</span>
+      <span class="tag tag-${c.status||'prospect'}">${c.status||'prospect'}</span>
+      ${c.priority_level==='high'?'<span class="tag tag-high">⭐ High</span>':''}
+    </div>
+    <div class="last-contact"><div class="ldot ${lc.cls}"></div>ติดต่อล่าสุด: ${lc.txt}</div>
+    <div class="qa-row" onclick="event.stopPropagation()">
+      <button class="qa-btn qa-call" onclick="if('${c.phone}')window.location.href='tel:${c.phone}'">📞 โทร</button>
+      <button class="qa-btn qa-note" onclick="openContactModal(${c.id})">📝 บันทึก</button>
+      <button class="qa-btn qa-task" onclick="openAddTask(${c.id})">✅ งาน</button>
+      <button class="qa-btn qa-del" onclick="confirmDelete('customer',${c.id})">🗑</button>
+    </div>
+  </div>`;
+}
+
+document.getElementById('cust-filters').addEventListener('click',e=>{
+  const ch=e.target.closest('.chip');if(!ch)return;
+  document.querySelectorAll('#cust-filters .chip').forEach(x=>{x.className='chip off'});
+  ch.className='chip on';custFilter=ch.dataset.f;renderCustomers();
+});
+document.getElementById('search-input').addEventListener('input',e=>{custSearch=e.target.value;renderCustomers()});
+
+/* ══════════════════════════════════
+   TASKS
+══════════════════════════════════ */
+let taskFilter='all';
+
+async function renderTasks(){
+  const [tasks,custs]=await Promise.all([dbAll('tasks'),dbAll('customers')]);
+  const cm={};custs.forEach(c=>cm[c.id]=c);
+  const t=todayStr();
+  let list=tasks.filter(x=>{
+    if(taskFilter==='today')return x.status==='pending'&&x.due_date===t;
+    if(taskFilter==='overdue')return x.status==='pending'&&x.due_date<t;
+    if(taskFilter==='pending')return x.status==='pending';
+    if(taskFilter==='done')return x.status==='done';
+    return true;
+  }).sort((a,b)=>a.due_date.localeCompare(b.due_date));
+  document.getElementById('task-count-lbl').textContent=`${list.length} รายการ`;
+  const el=document.getElementById('task-list');
+  if(!list.length){el.innerHTML=emptyState('✅','ไม่มีงานในหมวดนี้','');return}
+  el.innerHTML=list.map(t=>taskRowHTML(t,cm[t.customer_id]?.name)).join('');
+}
+
+function taskRowHTML(t,custName){
+  const d=todayStr();
+  const over=t.status==='pending'&&t.due_date<d;
+  const tod=t.status==='pending'&&t.due_date===d;
+  const done=t.status==='done';
+  const pc=done?'pp-green':over?'pp-red':tod?'pp-amber':'pp-blue';
+  const pt=done?'✓ เสร็จ':over?'เลยกำหนด':tod?'วันนี้':fmtDate(t.due_date);
+  const ic=done?'ti-green':over?'ti-red':tod?'ti-amber':'ti-blue';
+  return`<div class="task-row" onclick="openEditTask(${t.id})">
+    <div class="task-ico ${ic}">${icoType(t.type)}</div>
+    <div class="task-body">
+      <div class="task-title" style="${done?'text-decoration:line-through;opacity:.5':''}">${custName||'—'} — ${typeLabel(t.type)}</div>
+      <div class="task-sub">${t.note||fmtDate(t.due_date)}</div>
+    </div>
+    <div class="task-pill ${pc}">${pt}</div>
+  </div>`;
+}
+
+document.getElementById('task-filters').addEventListener('click',e=>{
+  const ch=e.target.closest('.chip');if(!ch)return;
+  document.querySelectorAll('#task-filters .chip').forEach(x=>{x.className='chip off'});
+  ch.className='chip on';taskFilter=ch.dataset.f;renderTasks();
+});
+
+/* ══════════════════════════════════
+   POLICIES
+══════════════════════════════════ */
+let polFilter='all';
+
+async function renderPolicies(){
+  const [pols,custs]=await Promise.all([dbAll('policies'),dbAll('customers')]);
+  const cm={};custs.forEach(c=>cm[c.id]=c);
+  let list=pols.filter(p=>{
+    if(polFilter==='active')return p.status==='active';
+    if(polFilter==='expired')return p.status==='expired';
+    if(polFilter==='exp30'){const d=p.renewal_date?daysUntil(p.renewal_date):null;return p.status==='active'&&d!==null&&d>=0&&d<=30}
+    if(polFilter==='exp60'){const d=p.renewal_date?daysUntil(p.renewal_date):null;return p.status==='active'&&d!==null&&d>=0&&d<=60}
+    return true;
+  });
+  document.getElementById('pol-count-lbl').textContent=`${list.length} กรมธรรม์`;
+  const el=document.getElementById('pol-list');
+  if(!list.length){el.innerHTML=emptyState('📋','ไม่มีกรมธรรม์ในหมวดนี้','');return}
+  el.innerHTML=list.map(p=>policyCardHTML(p,cm[p.customer_id]?.name)).join('');
+}
+
+function policyCardHTML(p,cn){
+  const d=p.renewal_date?daysUntil(p.renewal_date):null;
+  const exp=p.status==='expired'||(d!==null&&d<0);
+  const rl=d===null?'—':d<0?`หมดแล้ว ${Math.abs(d)} วัน`:d===0?'วันนี้!':d<=30?`อีก ${d} วัน`:fmtDate(p.renewal_date);
+  return`<div class="policy-card" onclick="openEditPolicy(${p.id})">
+    <div class="pol-type">${p.policy_type||'ประกัน'}${cn?' · '+cn:''}</div>
+    <div class="pol-name">${p.policy_name||p.policy_type||'—'}</div>
+    <div class="pol-row">
+      <div class="pf"><label>เบี้ย/ปี</label><value>${fmtMoney(p.premium)}</value></div>
+      <div class="pf"><label>เริ่ม</label><value>${fmtDate(p.start_date)}</value></div>
+      ${p.renewal_date?`<div class="renew-chip ${exp?'exp':''}">${rl}</div>`:''}
+    </div>
+  </div>`;
+}
+
+document.getElementById('pol-filters').addEventListener('click',e=>{
+  const ch=e.target.closest('.chip');if(!ch)return;
+  document.querySelectorAll('#pol-filters .chip').forEach(x=>{x.className='chip off'});
+  ch.className='chip on';polFilter=ch.dataset.f;renderPolicies();
+});
+
+/* ══════════════════════════════════
+   DASHBOARD + TRACKING
+══════════════════════════════════ */
+let trackPeriod='week';
+
+async function renderDashboard(){
+  const [custs,tasks,contacts,pols]=await Promise.all([dbAll('customers'),dbAll('tasks'),dbAll('contacts'),dbAll('policies')]);
+  const lm={};contacts.forEach(c=>{if(!lm[c.customer_id]||c.contact_date>lm[c.customer_id])lm[c.customer_id]=c.contact_date});
+  const t=todayStr();
+  const active=custs.filter(c=>c.status==='active').length;
+  const inactive=custs.filter(c=>c.status==='inactive').length;
+  const prospect=custs.filter(c=>c.status==='prospect').length;
+  const overdue=tasks.filter(x=>x.status==='pending'&&x.due_date<t).length;
+  const done=tasks.filter(x=>x.status==='done').length;
+  const cr=tasks.length?Math.round(done/tasks.length*100):0;
+  const no30=custs.filter(c=>!lm[c.id]||daysAgo(lm[c.id])>=30).length;
+  const exp30=pols.filter(p=>{const d=p.renewal_date?daysUntil(p.renewal_date):null;return p.status==='active'&&d!==null&&d>=0&&d<=30});
+  const totalPrem=pols.filter(p=>p.status==='active').reduce((s,p)=>s+(parseFloat(p.premium)||0),0);
+  const custMap={};custs.forEach(c=>custMap[c.id]=c);
+  const ar=custs.length?Math.round(active/custs.length*100):0;
+  document.getElementById('dash-date-lbl').textContent=new Date().toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+
+  // Tracking data
+  const trackHTML=buildTracking(contacts,tasks,custs);
+
+  document.getElementById('dash-content').innerHTML=`
+    <div class="dash-grid">
+      <div class="dash-tile"><div class="dash-num">${custs.length}</div><div class="dash-lbl">ลูกค้าทั้งหมด</div><div class="dash-sub ds-green">Active ${active} · Prospect ${prospect}</div></div>
+      <div class="dash-tile"><div class="dash-num">${no30}</div><div class="dash-lbl">ไม่ติดต่อ &gt;30 วัน</div><div class="dash-sub ${no30?'ds-red':'ds-green'}">${no30?'ต้องดำเนินการ':'ดีมาก!'}</div></div>
+      <div class="dash-tile"><div class="dash-num">${overdue}</div><div class="dash-lbl">งานค้าง</div><div class="dash-sub ${overdue?'ds-red':'ds-green'}">${overdue?'เลยกำหนด':'ไม่มีค้าง'}</div></div>
+      <div class="dash-tile"><div class="dash-num" style="font-size:${totalPrem>999999?'18px':'22px'}">${fmtMoney(totalPrem)}</div><div class="dash-lbl">เบี้ยรวม/ปี</div><div class="dash-sub ds-green">Active ${pols.filter(p=>p.status==='active').length} กรมธรรม์</div></div>
+    </div>
+    <div class="prog-card"><div class="prog-row"><span>Active Rate</span><span>${active}/${custs.length} (${ar}%)</span></div><div class="prog-track"><div class="prog-fill pf-navy" style="width:${ar}%"></div></div></div>
+    <div class="prog-card"><div class="prog-row"><span>Task Completion</span><span>${cr}%</span></div><div class="prog-track"><div class="prog-fill pf-green" style="width:${cr}%"></div></div></div>
+    <div class="prog-card"><div class="prog-row"><span>Renewal Risk (30 วัน)</span><span>${exp30.length} กรมธรรม์</span></div><div class="prog-track"><div class="prog-fill pf-amber" style="width:${Math.min(exp30.length*15,100)}%"></div></div></div>
+
+    <div class="sec-hdr"><div class="sec-title"><div class="sec-dot"></div>สัดส่วนลูกค้า</div></div>
+    <div class="card">
+      <div style="display:flex;border-radius:6px;overflow:hidden;height:10px;margin-bottom:12px">
+        <div style="flex:${active||1};background:var(--blue-500)"></div>
+        <div style="flex:${prospect||0};background:var(--amber-500)"></div>
+        <div style="flex:${inactive||0};background:var(--gray-300)"></div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        ${[['var(--blue-500)','Active',active],['var(--amber-500)','Prospect',prospect],['var(--gray-300)','Inactive',inactive]].map(([col,lbl,n])=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:${col}"></div><span style="font-size:12px;color:var(--gray-600)">${lbl} ${n}</span></div>`).join('')}
+      </div>
+    </div>
+
+    ${trackHTML}
+
+    ${exp30.length?`<div class="sec-hdr"><div class="sec-title"><div class="sec-dot" style="background:var(--error)"></div>กรมธรรม์ใกล้หมดอายุ</div><span class="sec-link" onclick="navTo('policies')">ดูทั้งหมด</span></div>${exp30.map(p=>policyCardHTML(p,custMap[p.customer_id]?.name)).join('')}`:''}
+  `;
+}
+
+function buildTracking(contacts,tasks,custs){
+  const now=new Date();
+  // Week: Mon-Sun of current week
+  const dow=now.getDay();const diff=dow===0?6:dow-1;
+  const wStart=new Date(now);wStart.setDate(now.getDate()-diff);wStart.setHours(0,0,0,0);
+  const wEnd=new Date(wStart);wEnd.setDate(wStart.getDate()+6);wEnd.setHours(23,59,59,999);
+  // Month
+  const mStart=new Date(now.getFullYear(),now.getMonth(),1);
+  const mEnd=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);
+
+  const inRange=(dateStr,s,e)=>{const d=new Date(dateStr);return d>=s&&d<=e};
+
+  const wContacts=contacts.filter(c=>inRange(c.contact_date,wStart,wEnd));
+  const mContacts=contacts.filter(c=>inRange(c.contact_date,mStart,mEnd));
+  const wDone=tasks.filter(t=>t.status==='done'&&t.due_date&&inRange(t.due_date,wStart,wEnd));
+  const mDone=tasks.filter(t=>t.status==='done'&&t.due_date&&inRange(t.due_date,mStart,mEnd));
+  // New customers this week/month
+  const wNew=custs.filter(c=>c.created_at&&inRange(c.created_at,wStart,wEnd));
+  const mNew=custs.filter(c=>c.created_at&&inRange(c.created_at,mStart,mEnd));
+  // Unique customers contacted
+  const wUniq=new Set(wContacts.map(c=>c.customer_id)).size;
+  const mUniq=new Set(mContacts.map(c=>c.customer_id)).size;
+
+  return`
+    <div class="sec-hdr" style="margin-top:4px"><div class="sec-title"><div class="sec-dot" style="background:var(--success)"></div>Tracking ผลการทำงาน</div></div>
+    <div class="tracking-period">
+      <button class="period-btn ${trackPeriod==='week'?'on':'off'}" onclick="setTrackPeriod('week')">สัปดาห์นี้</button>
+      <button class="period-btn ${trackPeriod==='month'?'on':'off'}" onclick="setTrackPeriod('month')">เดือนนี้</button>
+    </div>
+    <div id="track-data">
+      ${trackPeriod==='week'?trackGrid(wContacts.length,wUniq,wDone.length,wNew.length,'สัปดาห์นี้'):trackGrid(mContacts.length,mUniq,mDone.length,mNew.length,'เดือนนี้')}
+    </div>`;
+}
+
+function trackGrid(contacts,uniq,done,newCust,period){
+  return`<div class="track-grid">
+    <div class="track-tile"><div class="track-num" style="color:var(--blue-500)">${contacts}</div><div class="track-lbl">ครั้งที่ติดต่อ</div><div class="track-sub">${period}</div></div>
+    <div class="track-tile"><div class="track-num" style="color:var(--navy-800)">${uniq}</div><div class="track-lbl">ลูกค้าที่คุย</div><div class="track-sub">คนไม่ซ้ำ</div></div>
+    <div class="track-tile"><div class="track-num" style="color:var(--success)">${done}</div><div class="track-lbl">งานที่ปิด</div><div class="track-sub">เสร็จสิ้น</div></div>
+    <div class="track-tile"><div class="track-num" style="color:var(--amber-500)">${newCust}</div><div class="track-lbl">ลูกค้าใหม่</div><div class="track-sub">เพิ่มเข้าระบบ</div></div>
+  </div>`;
+}
+
+function setTrackPeriod(p){trackPeriod=p;renderDashboard()}
+
+/* ══════════════════════════════════
+   SETTINGS
+══════════════════════════════════ */
+async function renderSettings(){
+  const custs=await dbAll('customers');
+  const contacts=await dbAll('contacts');
+  const tasks=await dbAll('tasks');
+  const pols=await dbAll('policies');
+  const tierLabel=isPro()?`<span class="pro-badge">⭐ Pro</span>`:`<span style="background:var(--gray-200);color:var(--gray-600);font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px">Free</span>`;
+
+  document.getElementById('settings-content').innerHTML=`
+    <div class="settings-section">
+      <div class="settings-hdr">License</div>
+      <div class="settings-row">
+        <div class="settings-left">
+          <div class="settings-ico si-navy">🔑</div>
+          <div class="settings-info">
+            <div class="settings-name">แผนปัจจุบัน ${tierLabel}</div>
+            <div class="settings-desc">${isPro()?`Pro · ลูกค้าได้ถึง ${CFG.PRO_LIMIT} ราย`:`Free · ลูกค้าได้ ${custs.length}/${CFG.FREE_LIMIT} ราย`}</div>
+          </div>
+        </div>
+        ${!isPro()?`<button onclick="showLicenseModal()" style="background:var(--amber-500);color:white;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700">Upgrade</button>`:'<span style="color:var(--success);font-size:18px">✓</span>'}
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-hdr">ข้อมูล</div>
+      <div class="settings-row" onclick="exportData()">
+        <div class="settings-left">
+          <div class="settings-ico si-blue">📤</div>
+          <div class="settings-info"><div class="settings-name">Export ข้อมูล</div><div class="settings-desc">บันทึกสำรองเป็นไฟล์ JSON</div></div>
+        </div>
+        <span class="settings-arrow">›</span>
+      </div>
+      <div class="settings-row" onclick="document.getElementById('import-file').click()">
+        <div class="settings-left">
+          <div class="settings-ico si-green">📥</div>
+          <div class="settings-info"><div class="settings-name">Import ข้อมูล</div><div class="settings-desc">กู้คืนจากไฟล์ JSON</div></div>
+        </div>
+        <span class="settings-arrow">›</span>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-hdr">สถิติ</div>
+      <div class="settings-row">
+        <div class="settings-left">
+          <div class="settings-ico si-amber">📊</div>
+          <div class="settings-info"><div class="settings-name">สรุปข้อมูล</div><div class="settings-desc">ลูกค้า ${custs.length} · ติดต่อ ${contacts.length} · งาน ${tasks.length} · กรมธรรม์ ${pols.length}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-hdr">ความช่วยเหลือ</div>
+      <div class="settings-row" onclick="window.location.href='mailto:${CFG.SUPPORT_EMAIL}'">
+        <div class="settings-left">
+          <div class="settings-ico si-navy">✉️</div>
+          <div class="settings-info"><div class="settings-name">ติดต่อ Support</div><div class="settings-desc">${CFG.SUPPORT_EMAIL}</div></div>
+        </div>
+        <span class="settings-arrow">›</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:24px 0;color:var(--gray-400);font-size:11px">
+      PnR CRM v2.0 · Offline First<br>© PlannReport Tech
+    </div>
+
+    <div class="settings-section" style="border:1px solid var(--error-bg)">
+      <div class="settings-hdr" style="color:var(--error)">Danger Zone</div>
+      <div class="settings-row" onclick="confirmClearAll()">
+        <div class="settings-left">
+          <div class="settings-ico si-red">🗑</div>
+          <div class="settings-info"><div class="settings-name" style="color:var(--error)">ลบข้อมูลทั้งหมด</div><div class="settings-desc">ไม่สามารถกู้คืนได้</div></div>
+        </div>
+        <span class="settings-arrow" style="color:var(--error)">›</span>
+      </div>
+    </div>
+  `;
+}
+
+function showLicenseModal(){
+  navTo('today');// redirect to license screen
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.getElementById('screen-license').classList.add('active');
+}
+
+function confirmClearAll(){
+  showConfirm('⚠️','ลบข้อมูลทั้งหมด?','จะลบลูกค้า บันทึก งาน และกรมธรรม์ทั้งหมด ไม่สามารถกู้คืนได้',async()=>{
+    await Promise.all(['customers','contacts','tasks','policies'].map(s=>dbAll(s).then(all=>Promise.all(all.map(x=>dbDel(s,x.id))))));
+    clearCC();showToast('🗑 ลบข้อมูลทั้งหมดแล้ว');renderSettings();
+  });
+}
+
+/* ══════════════════════════════════
+   EXPORT / IMPORT
+══════════════════════════════════ */
+async function exportData(){
+  const data={
+    version:'2.0',exported_at:new Date().toISOString(),
+    customers:await dbAll('customers'),
+    contacts:await dbAll('contacts'),
+    tasks:await dbAll('tasks'),
+    policies:await dbAll('policies'),
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`PnR_CRM_backup_${todayStr()}.json`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Export สำเร็จ');
+}
+
+async function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const text=await file.text();
+  let data;
+  try{data=JSON.parse(text)}catch{showToast('❌ ไฟล์ไม่ถูกต้อง');return}
+  showConfirm('📥','Import ข้อมูล?',`จะนำเข้า: ลูกค้า ${data.customers?.length||0} · ติดต่อ ${data.contacts?.length||0} · งาน ${data.tasks?.length||0} · กรมธรรม์ ${data.policies?.length||0}`,async()=>{
+    // Clear existing
+    await Promise.all(['customers','contacts','tasks','policies'].map(s=>dbAll(s).then(all=>Promise.all(all.map(x=>dbDel(s,x.id))))));
+    // Import
+    const stores=['customers','contacts','tasks','policies'];
+    for(const s of stores){
+      if(data[s]?.length){
+        for(const obj of data[s]){await dbPut(s,obj)}
+      }
+    }
+    clearCC();showToast(`✅ Import สำเร็จ`);navTo('today');
+  },'นำเข้าข้อมูล',false);
+  e.target.value='';
+}
+
+/* ══════════════════════════════════
+   SAVE: CUSTOMER
+══════════════════════════════════ */
+async function openAddCustomer(){
+  if(!await checkLimit())return;
+  document.getElementById('modal-cust-title').textContent='เพิ่มลูกค้าใหม่';
+  document.getElementById('ce-id').value='';
+  ['ce-name','ce-phone','ce-age','ce-occ','ce-source'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ce-gender').value='';
+  document.getElementById('ce-status').value='prospect';
+  document.getElementById('ce-interest').value='cold';
+  document.getElementById('ce-priority').value='medium';
+  document.getElementById('ce-income').value='';
+  document.getElementById('btn-del-cust').style.display='none';
+  openModal('modal-customer');
+}
+
+async function openEditCustomer(id){
+  const c=await dbGet('customers',id);if(!c)return;
+  document.getElementById('modal-cust-title').textContent='แก้ไขข้อมูลลูกค้า';
+  document.getElementById('ce-id').value=c.id;
+  document.getElementById('ce-name').value=c.name||'';
+  document.getElementById('ce-phone').value=c.phone||'';
+  document.getElementById('ce-age').value=c.age||'';
+  document.getElementById('ce-gender').value=c.gender||'';
+  document.getElementById('ce-occ').value=c.occupation||'';
+  document.getElementById('ce-status').value=c.status||'prospect';
+  document.getElementById('ce-interest').value=c.interest_level||'cold';
+  document.getElementById('ce-priority').value=c.priority_level||'medium';
+  document.getElementById('ce-income').value=c.income_range||'';
+  document.getElementById('ce-source').value=c.source||'';
+  document.getElementById('btn-del-cust').style.display='block';
+  openModal('modal-customer');
+}
+
+async function saveCustomer(){
+  const id=document.getElementById('ce-id').value;
+  const name=document.getElementById('ce-name').value.trim();
+  const phone=document.getElementById('ce-phone').value.trim();
+  if(!name||!phone){showToast('⚠️ กรุณากรอกชื่อและเบอร์โทร');return}
+  const obj={name,phone,
+    age:parseInt(document.getElementById('ce-age').value)||null,
+    gender:document.getElementById('ce-gender').value,
+    occupation:document.getElementById('ce-occ').value.trim(),
+    status:document.getElementById('ce-status').value,
+    priority_level:document.getElementById('ce-priority').value,
+    income_range:document.getElementById('ce-income').value,
+    interest_level:document.getElementById('ce-interest').value,
+    source:document.getElementById('ce-source').value.trim(),
+  };
+  if(id){obj.id=parseInt(id)}else{obj.created_at=new Date().toISOString()}
+  await dbPut('customers',obj);
+  clearCC();closeModal('modal-customer');
+  showToast(id?'✅ อัปเดตแล้ว':'✅ เพิ่มลูกค้าแล้ว');
+  renderCustomers();renderToday();
+  if(detCustId)renderDetTab('info');
+}
+
+/* ══════════════════════════════════
+   SAVE: CONTACT
+══════════════════════════════════ */
+function openContactModal(custId){
+  document.getElementById('cnt-cust-id').value=custId;
+  document.getElementById('cnt-date').value=todayStr();
+  document.getElementById('cnt-type').value='call';
+  document.getElementById('cnt-note').value='';
+  openModal('modal-contact');
+}
+
+async function saveContact(){
+  const custId=parseInt(document.getElementById('cnt-cust-id').value);
+  const date=document.getElementById('cnt-date').value;
+  if(!custId||!date){showToast('⚠️ ข้อมูลไม่ครบ');return}
+  await dbPut('contacts',{customer_id:custId,contact_date:date,contact_type:document.getElementById('cnt-type').value,note:document.getElementById('cnt-note').value.trim()});
+  clearCC();closeModal('modal-contact');
+  showToast('✅ บันทึกการติดต่อแล้ว');
+  renderToday();if(detCustId)renderDetTab('contacts');
+}
+
+/* ══════════════════════════════════
+   SAVE: TASK
+══════════════════════════════════ */
+async function populateCustSelect(selId,elId){
+  const custs=await dbAll('customers');
+  document.getElementById(elId).innerHTML=custs.length
+    ?custs.map(c=>`<option value="${c.id}"${c.id===selId?' selected':''}>${c.name}</option>`).join('')
+    :'<option value="">— ยังไม่มีลูกค้า —</option>';
+}
+
+async function openAddTask(custId){
+  document.getElementById('modal-task-title').textContent='เพิ่มงานใหม่';
+  document.getElementById('te-id').value='';
+  await populateCustSelect(custId,'te-cust');
+  document.getElementById('te-due').value=todayStr();
+  document.getElementById('te-type').value='call';
+  document.getElementById('te-priority').value='medium';
+  document.getElementById('te-status').value='pending';
+  document.getElementById('te-note').value='';
+  document.getElementById('btn-del-task').style.display='none';
+  openModal('modal-task');
+}
+
+async function openEditTask(id){
+  const t=await dbGet('tasks',id);if(!t)return;
+  document.getElementById('modal-task-title').textContent='แก้ไขงาน';
+  document.getElementById('te-id').value=t.id;
+  await populateCustSelect(t.customer_id,'te-cust');
+  document.getElementById('te-due').value=t.due_date||todayStr();
+  document.getElementById('te-type').value=t.type||'call';
+  document.getElementById('te-priority').value=t.priority||'medium';
+  document.getElementById('te-status').value=t.status||'pending';
+  document.getElementById('te-note').value=t.note||'';
+  document.getElementById('btn-del-task').style.display='block';
+  openModal('modal-task');
+}
+
+async function saveTask(){
+  const id=document.getElementById('te-id').value;
+  const custId=parseInt(document.getElementById('te-cust').value);
+  const due=document.getElementById('te-due').value;
+  if(!custId||!due){showToast('⚠️ กรุณาเลือกลูกค้าและวันที่');return}
+  const obj={customer_id:custId,type:document.getElementById('te-type').value,due_date:due,status:document.getElementById('te-status').value,priority:document.getElementById('te-priority').value,note:document.getElementById('te-note').value.trim()};
+  if(id)obj.id=parseInt(id);
+  await dbPut('tasks',obj);
+  closeModal('modal-task');showToast(id?'✅ อัปเดตงานแล้ว':'✅ เพิ่มงานแล้ว');
+  renderTasks();renderToday();if(detCustId)renderDetTab('tasks');
+}
+
+/* ══════════════════════════════════
+   SAVE: POLICY
+══════════════════════════════════ */
+async function openAddPolicy(custId){
+  document.getElementById('modal-pol-title').textContent='เพิ่มกรมธรรม์';
+  document.getElementById('pe-id').value='';
+  await populateCustSelect(custId,'pe-cust');
+  ['pe-type','pe-name','pe-premium','pe-start','pe-renewal'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pe-status').value='active';
+  document.getElementById('btn-del-pol').style.display='none';
+  openModal('modal-policy');
+}
+
+async function openEditPolicy(id){
+  const p=await dbGet('policies',id);if(!p)return;
+  document.getElementById('modal-pol-title').textContent='แก้ไขกรมธรรม์';
+  document.getElementById('pe-id').value=p.id;
+  await populateCustSelect(p.customer_id,'pe-cust');
+  document.getElementById('pe-type').value=p.policy_type||'';
+  document.getElementById('pe-name').value=p.policy_name||'';
+  document.getElementById('pe-premium').value=p.premium||'';
+  document.getElementById('pe-status').value=p.status||'active';
+  document.getElementById('pe-start').value=p.start_date||'';
+  document.getElementById('pe-renewal').value=p.renewal_date||'';
+  document.getElementById('btn-del-pol').style.display='block';
+  openModal('modal-policy');
+}
+
+async function savePolicy(){
+  const id=document.getElementById('pe-id').value;
+  const custId=parseInt(document.getElementById('pe-cust').value);
+  if(!custId){showToast('⚠️ กรุณาเลือกลูกค้า');return}
+  const obj={customer_id:custId,policy_type:document.getElementById('pe-type').value.trim(),policy_name:document.getElementById('pe-name').value.trim(),premium:parseFloat(document.getElementById('pe-premium').value)||0,status:document.getElementById('pe-status').value,start_date:document.getElementById('pe-start').value,renewal_date:document.getElementById('pe-renewal').value};
+  if(id)obj.id=parseInt(id);
+  await dbPut('policies',obj);
+  closeModal('modal-policy');showToast(id?'✅ อัปเดตแล้ว':'✅ เพิ่มกรมธรรม์แล้ว');
+  renderPolicies();renderDashboard();if(detCustId)renderDetTab('policies');
+}
+
+/* ══════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════ */
+function emptyState(ico,txt,sub){
+  return`<div class="empty-state"><div class="empty-ico">${ico}</div><div class="empty-txt">${txt}</div>${sub?`<div class="empty-sub">${sub}</div>`:''}</div>`;
+}
+
+/* ══════════════════════════════════
+   SERVICE WORKER
+══════════════════════════════════ */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+async function init(){
+  await initDB();
+  await loadLicense();
+
+  // Check if first time or no license saved
+  const saved=localStorage.getItem('pnr_license');
+  const shown=localStorage.getItem('pnr_onboarded');
+  if(!shown){
+    localStorage.setItem('pnr_onboarded','1');
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    document.getElementById('screen-license').classList.add('active');
+    document.getElementById('bottom-nav').style.display='none';
+    return;
+  }
+  navTo('today');
+}
+
+init();
+</script>
+</body>
+</html>
